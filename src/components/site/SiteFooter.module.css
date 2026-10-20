@@ -1,7 +1,8 @@
 .footer {
   background: var(--night);
   color: var(--on-night);
-  padding-block: clamp(3rem, 2rem + 4vw, 5.5rem) 1.5rem;
+  /* Abajo deja espacio para el botón flotante de WhatsApp */
+  padding-block: clamp(3rem, 2rem + 4vw, 5.5rem) calc(5.5rem + env(safe-area-inset-bottom));
 }
 
 .grid {
@@ -78,9 +79,24 @@
 /* La barra de contacto fija de las fichas no debe tapar el pie en móvil */
 @media (min-width: 720px) {
   .grid {
-    grid-template-columns: 1.4fr 1fr 1.3fr;
+    grid-template-columns: 1fr 1fr;
     gap: 3rem;
   }
+  .grid > :first-child {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (min-width: 1024px) {
+  .grid {
+    grid-template-columns: 1.4fr 1fr 1.3fr;
+  }
+  .grid > :first-child {
+    grid-column: auto;
+  }
+}
+
+@media (min-width: 720px) {
   .legal {
     flex-direction: row;
     justify-content: space-between;

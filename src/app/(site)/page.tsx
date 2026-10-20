@@ -246,7 +246,7 @@ function Landscape() {
       <rect width="1600" height="900" fill="url(#sky)" />
       <path d="M0 640 L330 360 L470 480 L640 300 L960 640Z" fill="#1d2f28" opacity=".55" />
       <path d="M700 640 L1020 250 L1090 330 L1160 270 L1600 640Z" fill="#162620" opacity=".7" />
-      <path d="M1000 250 L1020 250 L1040 270 L1000 262Z" fill="#ece8df" opacity=".35" />
+      <path d="M1020 250 L1059 295 L1040 288 L1022 300 L1004 286 L983 295Z" fill="#ece8df" opacity=".35" />
       <rect y="640" width="1600" height="260" fill="#2c4552" />
       <path d="M0 700h1600M0 760h1600M0 830h1600" stroke="#ece8df" strokeOpacity=".08" strokeWidth="2" />
     </svg>
