@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { PropertyPhoto } from "@/components/PropertyPhoto";
 import { getFeaturedProperties, getSettings } from "@/lib/data";
 import { formatPrice, TYPE_LABELS, whatsappLink } from "@/lib/format";
 import { imageUrl, variantWidth } from "@/lib/images";
@@ -28,7 +27,7 @@ export async function generateMetadata(): Promise<Metadata> {
         },
       ]
     : // Sin fotos: imagen de marca para que el enlace compartido no salga vacío
-      [{ url: "/opengraph-image", width: 1200, height: 630, alt: "Valle Volcanes Propiedades · Puerto Varas" }];
+      [{ url: "/portada/osorno-og.jpg", width: 1200, height: 630, alt: "Volcán Osorno, Región de Los Lagos" }];
   return {
     title: { absolute: title },
     description,
@@ -38,10 +37,11 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
+const HERO_WIDTHS = [828, 1280, 1920, 2560];
+
 export default async function HomePage() {
   const [settings, featured] = await Promise.all([getSettings(), getFeaturedProperties(6)]);
   const lead = featured[0];
-  const heroImage = lead?.images[0];
   const wa = whatsappLink(settings.whatsapp, "Hola, quisiera conversar sobre una propiedad.");
   const tel = telHref(settings.phone);
   const ig = settings.instagram?.replace(/^@/, "").trim();
@@ -77,17 +77,28 @@ export default async function HomePage() {
       {/* ───── Hero ───── */}
       <section className={styles.hero} aria-labelledby="hero-titulo">
         <div className={styles.heroMedia}>
-          {heroImage ? (
-            <PropertyPhoto
-              image={heroImage}
-              sizes="hero"
-              priority
-              alt={heroImage.alt ?? lead.title}
+          {/* Foto de portada fija: volcán Osorno. Variantes AVIF/WebP pregeneradas en /public/portada */}
+          <picture>
+            <source
+              type="image/avif"
+              srcSet={HERO_WIDTHS.map((w) => `/portada/osorno-${w}.avif ${w}w`).join(", ")}
+              sizes="100vw"
+            />
+            <source
+              type="image/webp"
+              srcSet={HERO_WIDTHS.map((w) => `/portada/osorno-${w}.webp ${w}w`).join(", ")}
+              sizes="100vw"
+            />
+            <img
+              src="/portada/osorno-1920.webp"
+              alt="Volcán Osorno nevado sobre el bosque nativo y los saltos del río Petrohué"
+              width={2560}
+              height={1920}
+              fetchPriority="high"
+              decoding="async"
               className={styles.heroPhoto}
             />
-          ) : (
-            <Landscape />
-          )}
+          </picture>
           <div className={styles.heroShade} />
         </div>
 
@@ -109,7 +120,7 @@ export default async function HomePage() {
               </a>
             )}
           </div>
-          {lead && heroImage && (
+          {lead && (
             <Link href={`/propiedades/${lead.slug}`} className={styles.heroCaption}>
               <span className={styles.captionKicker}>
                 Destacada · {TYPE_LABELS[lead.property_type]} en {lead.commune}
@@ -231,25 +242,5 @@ export default async function HomePage() {
         </div>
       </section>
     </>
-  );
-}
-
-/** Composición abstracta (lago y volcanes) para cuando todavía no hay fotos. */
-function Landscape() {
-  return (
-    <svg className={styles.landscape} viewBox="0 0 1600 900" preserveAspectRatio="xMidYMax slice" aria-hidden="true" focusable="false">
-      <defs>
-        <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor="#223a31" />
-          <stop offset="1" stopColor="#3c5a69" />
-        </linearGradient>
-      </defs>
-      <rect width="1600" height="900" fill="url(#sky)" />
-      <path d="M0 640 L330 360 L470 480 L640 300 L960 640Z" fill="#1d2f28" opacity=".55" />
-      <path d="M700 640 L1020 250 L1090 330 L1160 270 L1600 640Z" fill="#162620" opacity=".7" />
-      <path d="M1020 250 L1059 295 L1040 288 L1022 300 L1004 286 L983 295Z" fill="#ece8df" opacity=".35" />
-      <rect y="640" width="1600" height="260" fill="#2c4552" />
-      <path d="M0 700h1600M0 760h1600M0 830h1600" stroke="#ece8df" strokeOpacity=".08" strokeWidth="2" />
-    </svg>
   );
 }

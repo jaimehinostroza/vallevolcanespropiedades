@@ -16,6 +16,10 @@
 .heroPhoto {
   width: 100%;
   height: 100%;
+  object-fit: cover;
+  object-position: 50% 30%; /* mantiene el cono del volcán a la vista en pantallas verticales */
+  /* placeholder de color mientras llega la foto */
+  background: #6f8fae;
   /* Solo zoom: el fundido de opacidad ya lo hace PropertyPhoto al cargar */
   animation: heroIn 600ms var(--ease-out) both;
 }
