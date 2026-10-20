@@ -1,36 +1,57 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Valle Volcanes Propiedades
 
-## Getting Started
+Sitio web de la corredora **Valle Volcanes Propiedades** (Puerto Varas, Región de Los Lagos) con
+panel de administración para publicar propiedades y fotografías.
 
-First, run the development server:
+- **Sitio público**: portada, catálogo con filtros, ficha de cada propiedad con galería y visor a
+  pantalla completa, contacto por WhatsApp y formulario de consultas.
+- **Panel** (`/admin`): crear y editar propiedades, subir y ordenar fotos, leer consultas y
+  editar los datos de contacto del sitio.
+- **Fotos optimizadas automáticamente**: al subir, cada foto se corrige de orientación, se le
+  quitan los metadatos (incluida la ubicación GPS) y se guarda en tres tamaños comprimidos
+  (640, 1280 y 2048 px, WebP). El sitio entrega a cada pantalla el tamaño justo, con una vista
+  previa borrosa mientras carga.
+
+## Tecnología
+
+| Pieza | Uso |
+|---|---|
+| Next.js 16 (App Router, Cache Components) | Sitio y panel |
+| Supabase | Base de datos, inicio de sesión y almacenamiento de fotos |
+| Vercel | Publicación |
+
+Detalle técnico y reglas para quien desarrolle: [`CLAUDE.md`](CLAUDE.md).
+
+## Puesta en marcha (desarrollo)
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+cp .env.example .env.local   # completar URL y clave publicable de Supabase
+npm run dev                  # http://localhost:3000
+DEMO_DATA=1 npm run dev      # con datos de ejemplo, sin Supabase
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Base de datos
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Las migraciones están en `supabase/migrations/` y ya están aplicadas en el proyecto Supabase
+`vallevolcanes-propiedades`. Tablas: `properties`, `property_images`, `site_settings`,
+`inquiries`, `admins`. Todas con seguridad a nivel de fila (RLS): el público solo lee lo
+publicado; solo los correos registrados en `admins` pueden modificar.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Dar acceso a la dueña al panel
 
-## Learn More
+1. En Supabase → **Authentication → Users → Add user → Create new user**: correo y contraseña,
+   marcando *Auto Confirm User*.
+2. En Supabase → **SQL Editor**, autorizar ese correo:
+   ```sql
+   insert into public.admins (email) values ('correo@ejemplo.cl');
+   ```
+3. Entrar en `https://www.vallevolcanespropiedades.cl/admin`.
 
-To learn more about Next.js, take a look at the following resources:
+## Variables de entorno (Vercel)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+| Variable | Valor |
+|---|---|
+| `NEXT_PUBLIC_SUPABASE_URL` | URL del proyecto Supabase |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Clave publicable (`sb_publishable_…`) |
+| `NEXT_PUBLIC_SITE_URL` | `https://www.vallevolcanespropiedades.cl` |
