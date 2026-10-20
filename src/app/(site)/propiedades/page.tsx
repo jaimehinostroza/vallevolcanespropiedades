@@ -57,8 +57,11 @@ export default function CatalogPage({ searchParams }: { searchParams: SP }) {
 }
 
 async function Catalog({ searchParams }: { searchParams: SP }) {
-  const filters = parseFilters(await searchParams);
-  const [items, communes, settings] = await Promise.all([getProperties(filters), getCommunes(), getSettings()]);
+  const [raw, communes, settings] = await Promise.all([searchParams, getCommunes(), getSettings()]);
+  const filters = parseFilters(raw);
+  // Solo comunas que existen: evita crear entradas de caché con textos arbitrarios en la URL.
+  if (filters.commune && !communes.includes(filters.commune)) delete filters.commune;
+  const items = await getProperties(filters);
   const active = Object.keys(filters).length > 0;
   const wa = whatsappLink(settings.whatsapp, "Hola, estoy buscando una propiedad y quisiera conversar.");
 

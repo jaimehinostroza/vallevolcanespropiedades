@@ -33,10 +33,20 @@ export const TAGS = {
   settings: "settings",
 } as const;
 
-const SELECT_WITH_IMAGES = "*, images:property_images(*)";
+// Columnas públicas explícitas: "address" es privada (sin permiso de lectura para el rol anónimo).
+const PUBLIC_COLUMNS =
+  "id, slug, title, status, operation, property_type, price, currency, commune, sector, latitude, longitude, " +
+  "bedrooms, bathrooms, built_m2, land_m2, parking, year_built, summary, description, features, featured, " +
+  "sort_order, published_at, created_at, updated_at";
+const SELECT_WITH_IMAGES = `${PUBLIC_COLUMNS}, images:property_images(*)`;
+
+/** El público nunca recibe la dirección exacta. */
+function withoutAddress<T extends { address?: string | null }>(p: T): T {
+  return { ...p, address: null };
+}
 
 function sortImages(p: PropertyWithImages): PropertyWithImages {
-  return { ...p, images: [...(p.images ?? [])].sort((a, b) => a.position - b.position) };
+  return withoutAddress({ ...p, images: [...(p.images ?? [])].sort((a, b) => a.position - b.position) });
 }
 
 const STATUS_RANK: Record<string, number> = { publicada: 0, reservada: 1, vendida: 2 };
@@ -62,7 +72,7 @@ export async function getProperties(filters: PropertyFilters = {}): Promise<Prop
     .order("published_at", { ascending: false });
   if (error) throw error;
 
-  return (data as PropertyWithImages[])
+  return (data as unknown as PropertyWithImages[])
     .map(sortImages)
     .sort((a, b) => (STATUS_RANK[a.status] ?? 9) - (STATUS_RANK[b.status] ?? 9));
 }
@@ -92,7 +102,7 @@ export async function getPropertyBySlug(slug: string): Promise<PropertyWithImage
     .neq("status", "borrador")
     .maybeSingle();
   if (error) throw error;
-  return data ? sortImages(data as PropertyWithImages) : null;
+  return data ? sortImages(data as unknown as PropertyWithImages) : null;
 }
 
 export async function getPublishedSlugs(): Promise<string[]> {

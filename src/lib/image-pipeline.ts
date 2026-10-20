@@ -72,10 +72,20 @@ function makeCanvas(w: number, h: number) {
   const canvas = document.createElement("canvas");
   canvas.width = w;
   canvas.height = h;
-  const ctx = canvas.getContext("2d", { alpha: false })!;
+  const ctx = canvas.getContext("2d", { alpha: false });
+  if (!ctx) throw new ImageProcessingError("La foto es demasiado grande para procesarla en este dispositivo.");
   ctx.imageSmoothingEnabled = true;
   ctx.imageSmoothingQuality = "high";
   return { canvas, ctx };
+}
+
+/** Safari en iPhone no crea canvas de más de ~16,7 MP; nos mantenemos bajo ese techo. */
+const MAX_CANVAS_PIXELS = 16_000_000;
+
+function releaseCanvas(c: HTMLCanvasElement) {
+  // Safari retiene la memoria de los canvas hasta que se reducen a 0×0
+  c.width = 0;
+  c.height = 0;
 }
 
 /** Reduce a la mitad sucesivamente hasta acercarse al tamaño final, luego el último paso exacto. */
@@ -84,17 +94,28 @@ function resize(src: Source | HTMLCanvasElement, targetW: number, targetH: numbe
   let { w, h } =
     current instanceof HTMLCanvasElement ? { w: current.width, h: current.height } : dims(current as Source);
 
-  while (w / 2 >= targetW && h / 2 >= targetH) {
-    w = Math.round(w / 2);
-    h = Math.round(h / 2);
-    const { canvas, ctx } = makeCanvas(w, h);
-    ctx.drawImage(current, 0, 0, w, h);
+  const step = (nw: number, nh: number) => {
+    const { canvas, ctx } = makeCanvas(nw, nh);
+    ctx.drawImage(current, 0, 0, nw, nh);
+    if (current !== src && current instanceof HTMLCanvasElement) releaseCanvas(current);
     current = canvas;
+    w = nw;
+    h = nh;
+  };
+
+  // Primer paso: si la mitad aún excede el techo de iOS, bajar directo hasta caber.
+  if (w / 2 >= targetW && h / 2 >= targetH && (w / 2) * (h / 2) > MAX_CANVAS_PIXELS) {
+    const s = Math.sqrt(MAX_CANVAS_PIXELS / (w * h));
+    step(Math.max(targetW, Math.floor(w * s)), Math.max(targetH, Math.floor(h * s)));
+  }
+  while (w / 2 >= targetW && h / 2 >= targetH) {
+    step(Math.round(w / 2), Math.round(h / 2));
   }
   const { canvas, ctx } = makeCanvas(targetW, targetH);
   ctx.fillStyle = "#fff"; // PNG con transparencia → fondo blanco en vez de negro
   ctx.fillRect(0, 0, targetW, targetH);
   ctx.drawImage(current, 0, 0, targetW, targetH);
+  if (current !== src && current instanceof HTMLCanvasElement) releaseCanvas(current);
   return canvas;
 }
 
@@ -125,51 +146,57 @@ async function encodeWithinBudget(canvas: HTMLCanvasElement, mime: string, quali
 
 export async function processImage(file: File): Promise<ProcessedImage> {
   const source = await decode(file);
-  const { w: srcW, h: srcH } = dims(source);
-  if (srcW < 200 || srcH < 200) {
-    throw new ImageProcessingError(`"${file.name}" es muy pequeña (${srcW}×${srcH}). Usa fotos de al menos 1200 px.`);
+  const canvases: HTMLCanvasElement[] = [];
+  try {
+    const { w: srcW, h: srcH } = dims(source);
+    if (srcW < 200 || srcH < 200) {
+      throw new ImageProcessingError(`"${file.name}" es muy pequeña (${srcW}×${srcH}). Usa fotos de al menos 1200 px.`);
+    }
+
+    const webp = await supportsWebp();
+    const mime = webp ? "image/webp" : "image/jpeg";
+    const ext = webp ? "webp" : "jpg";
+    const srcLong = Math.max(srcW, srcH);
+
+    // De mayor a menor: cada variante se reduce desde la anterior (más rápido y igual de nítido).
+    const ordered = [...IMAGE_VARIANTS].sort((a, b) => b.longEdge - a.longEdge);
+    const variants: ProcessedVariant[] = [];
+    let base: Source | HTMLCanvasElement = source;
+
+    for (const v of ordered) {
+      const scale = Math.min(1, v.longEdge / srcLong); // nunca agrandar
+      const w = Math.max(1, Math.round(srcW * scale));
+      const h = Math.max(1, Math.round(srcH * scale));
+      const canvas = resize(base, w, h);
+      canvases.push(canvas);
+      const blob = await encodeWithinBudget(canvas, mime, v.quality, v.maxBytes);
+      variants.push({ name: v.name, blob, width: w, height: h });
+      base = canvas;
+    }
+
+    // Placeholder borroso de ~24 px (se muestra mientras carga la foto real)
+    const lgVariant = variants.find((v) => v.name === "lg")!;
+    const phW = 24;
+    const phH = Math.max(1, Math.round((lgVariant.height / lgVariant.width) * phW));
+    const phCanvas = resize(base, phW, phH);
+    canvases.push(phCanvas);
+    const placeholder = phCanvas.toDataURL("image/jpeg", 0.5);
+
+    return {
+      variants: variants.sort(
+        (a, b) => IMAGE_VARIANTS.findIndex((x) => x.name === a.name) - IMAGE_VARIANTS.findIndex((x) => x.name === b.name),
+      ),
+      ext,
+      width: lgVariant.width,
+      height: lgVariant.height,
+      placeholder,
+      bytesTotal: variants.reduce((s, v) => s + v.blob.size, 0),
+      originalBytes: file.size,
+    };
+  } finally {
+    if ("close" in source) source.close();
+    canvases.forEach(releaseCanvas);
   }
-
-  const webp = await supportsWebp();
-  const mime = webp ? "image/webp" : "image/jpeg";
-  const ext = webp ? "webp" : "jpg";
-  const srcLong = Math.max(srcW, srcH);
-
-  // De mayor a menor: cada variante se reduce desde la anterior (más rápido y igual de nítido).
-  const ordered = [...IMAGE_VARIANTS].sort((a, b) => b.longEdge - a.longEdge);
-  const variants: ProcessedVariant[] = [];
-  let base: Source | HTMLCanvasElement = source;
-
-  for (const v of ordered) {
-    const scale = Math.min(1, v.longEdge / srcLong); // nunca agrandar
-    const w = Math.max(1, Math.round(srcW * scale));
-    const h = Math.max(1, Math.round(srcH * scale));
-    const canvas = resize(base, w, h);
-    const blob = await encodeWithinBudget(canvas, mime, v.quality, v.maxBytes);
-    variants.push({ name: v.name, blob, width: w, height: h });
-    base = canvas;
-  }
-
-  // Placeholder borroso de ~24 px (se muestra mientras carga la foto real)
-  const lgVariant = variants.find((v) => v.name === "lg")!;
-  const phW = 24;
-  const phH = Math.max(1, Math.round((lgVariant.height / lgVariant.width) * phW));
-  const phCanvas = resize(base, phW, phH);
-  const placeholder = phCanvas.toDataURL("image/jpeg", 0.5);
-
-  if ("close" in source) source.close();
-
-  return {
-    variants: variants.sort(
-      (a, b) => IMAGE_VARIANTS.findIndex((x) => x.name === a.name) - IMAGE_VARIANTS.findIndex((x) => x.name === b.name),
-    ),
-    ext,
-    width: lgVariant.width,
-    height: lgVariant.height,
-    placeholder,
-    bytesTotal: variants.reduce((s, v) => s + v.blob.size, 0),
-    originalBytes: file.size,
-  };
 }
 
 export type UploadStage = "procesando" | "subiendo" | "listo";

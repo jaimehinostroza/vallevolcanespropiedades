@@ -21,7 +21,9 @@ interface Props {
  * mientras carga y aparición con fundido. Sin foto, muestra un paisaje abstracto.
  */
 export function PropertyPhoto({ image, sizes = "card", alt, priority, className, style, aspectRatio }: Props) {
-  const [loaded, setLoaded] = useState(false);
+  // Las fotos prioritarias (portada, galería principal) se pintan sin fundido: definen el LCP
+  // y deben verse aunque el JavaScript aún no haya cargado.
+  const [loaded, setLoaded] = useState(Boolean(priority));
   const ref = useRef<HTMLImageElement>(null);
 
   // Si la imagen ya estaba en caché, onLoad puede dispararse antes de hidratar.

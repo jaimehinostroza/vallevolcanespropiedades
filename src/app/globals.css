@@ -19,7 +19,7 @@
   /* Tinta */
   --ink: #1b211f;
   --ink-2: #434b47;
-  --muted: #6f7772;
+  --muted: #5f6762;      /* AA sobre --paper y --paper-2 */
   --on-night: #ece8df;
   --on-night-muted: #a3aaa5;
 
@@ -166,7 +166,7 @@ button {
   width: 100%;
   max-width: var(--max);
   margin-inline: auto;
-  padding-inline: var(--gutter);
+  padding-inline: max(var(--gutter), env(safe-area-inset-left)) max(var(--gutter), env(safe-area-inset-right));
 }
 
 .eyebrow {

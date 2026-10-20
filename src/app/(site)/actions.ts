@@ -1,6 +1,27 @@
 "use server";
 
+import { headers } from "next/headers";
 import { createPublicClient } from "@/lib/supabase/public";
+
+/**
+ * Límite por IP: máximo 3 consultas cada 10 minutos desde una misma conexión.
+ * Vive en memoria de la instancia del servidor (best-effort); el freno global está en la base.
+ */
+const WINDOW_MS = 10 * 60 * 1000;
+const MAX_PER_IP = 3;
+const hits = new Map<string, number[]>();
+
+function rateLimited(ip: string, now: number) {
+  const recent = (hits.get(ip) ?? []).filter((t) => now - t < WINDOW_MS);
+  if (recent.length >= MAX_PER_IP) {
+    hits.set(ip, recent);
+    return true;
+  }
+  recent.push(now);
+  hits.set(ip, recent);
+  if (hits.size > 5000) hits.clear(); // evita crecer sin límite
+  return false;
+}
 
 export type InquiryField = "name" | "contact" | "message";
 
@@ -60,6 +81,16 @@ export async function sendInquiry(_prev: InquiryState, formData: FormData): Prom
   }
 
   const property_id = UUID_RE.test(propertyIdRaw) ? propertyIdRaw : null;
+
+  const h = await headers();
+  const ip = h.get("x-forwarded-for")?.split(",")[0]?.trim() || h.get("x-real-ip") || "desconocida";
+  if (rateLimited(ip, Date.now())) {
+    return {
+      status: "error",
+      message: "Ya recibimos varias consultas desde tu conexión. Espera unos minutos o escríbenos por WhatsApp.",
+      values,
+    };
+  }
 
   try {
     const supabase = createPublicClient();
