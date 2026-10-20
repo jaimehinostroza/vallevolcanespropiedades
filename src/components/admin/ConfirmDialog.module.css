@@ -1,0 +1,83 @@
+.dialog {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  max-width: calc(100vw - 32px);
+  color: var(--ink);
+  overflow: visible;
+}
+
+.dialog::backdrop {
+  background: rgb(20 25 23 / 0.5);
+}
+
+/* Modal centrado: entra con fundido + leve escala desde 0.96 (nunca desde 0) */
+.dialog[open] .panel {
+  animation: enter var(--dur) var(--ease-out);
+}
+
+.dialog[open]::backdrop {
+  animation: fade var(--dur) var(--ease-out);
+}
+
+.panel {
+  width: min(420px, calc(100vw - 32px));
+  padding: 1.4rem;
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  box-shadow: var(--shadow-lg);
+}
+
+.title {
+  font-size: 1.75rem;
+  line-height: 1.1;
+}
+
+.body {
+  margin-top: 0.7rem;
+  font-size: var(--text-sm);
+  line-height: 1.55;
+  color: var(--ink-2);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.6rem;
+  margin-top: 1.4rem;
+}
+
+.actions > :global(.btn) {
+  flex: 1 1 130px;
+}
+
+.danger {
+  --btn-bg: var(--danger);
+  --btn-fg: #fff;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  :global(.btn).danger:hover {
+    --btn-bg: #7e2f24;
+  }
+}
+
+@keyframes enter {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(6px);
+  }
+}
+
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dialog[open] .panel {
+    animation-name: fade;
+  }
+}

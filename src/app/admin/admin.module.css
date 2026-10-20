@@ -1,0 +1,127 @@
+.root {
+  --admin-nav-h: 62px;
+  --admin-side-w: 248px;
+  min-height: 100dvh;
+  background: var(--paper);
+  color: var(--ink);
+}
+
+@media (min-width: 900px) {
+  .root {
+    --admin-nav-h: 0px;
+  }
+}
+
+.shell {
+  min-height: 100dvh;
+  padding-bottom: calc(var(--admin-nav-h) + env(safe-area-inset-bottom));
+}
+
+.main {
+  width: 100%;
+  max-width: 1080px;
+  margin-inline: auto;
+  padding: 1.25rem var(--gutter) 3rem;
+}
+
+@media (min-width: 900px) {
+  .shell {
+    padding-left: var(--admin-side-w);
+    padding-bottom: 0;
+  }
+  .main {
+    padding-top: 2.25rem;
+  }
+}
+
+/* Cabecera de página: título serif + acciones */
+.pageHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 0.9rem 1.5rem;
+  margin-bottom: 1.4rem;
+}
+
+.pageTitle {
+  font-size: var(--display-sm);
+}
+
+.pageSub {
+  margin-top: 0.35rem;
+  font-size: var(--text-sm);
+  color: var(--muted);
+}
+
+.back {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 44px;
+  margin-left: -6px;
+  padding-right: 8px;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--muted);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .back:hover {
+    color: var(--ink);
+  }
+}
+
+/* Carga y avisos de pantalla completa */
+.skeleton {
+  display: grid;
+  gap: 12px;
+}
+
+.skeletonBar {
+  height: 18px;
+  border-radius: 6px;
+  background: var(--paper-2);
+  animation: pulse 1.4s ease-in-out infinite alternate;
+}
+
+@keyframes pulse {
+  from {
+    opacity: 0.5;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.denied {
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  padding: 1.5rem var(--gutter);
+}
+
+.deniedCard {
+  width: min(460px, 100%);
+  padding: 2rem 1.5rem;
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  text-align: center;
+}
+
+.deniedCard h1 {
+  font-size: 2rem;
+}
+
+.deniedCard p {
+  margin: 0.8rem 0 1.4rem;
+  font-size: var(--text-sm);
+  color: var(--ink-2);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeletonBar {
+    animation: none;
+  }
+}

@@ -1,0 +1,236 @@
+.filters {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 1rem;
+}
+
+.filter {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 14px;
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  background: transparent;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--ink-2);
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    transform var(--dur-press) var(--ease-out),
+    background-color var(--dur-fast) ease,
+    color var(--dur-fast) ease;
+}
+
+.filter:active {
+  transform: scale(0.97);
+}
+
+.filter span {
+  font-size: var(--text-xs);
+  opacity: 0.7;
+  font-variant-numeric: tabular-nums;
+}
+
+.filter[aria-pressed="true"] {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--paper);
+}
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 12px;
+}
+
+.item {
+  padding: 1rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  animation: rowIn var(--dur) var(--ease-out) backwards;
+}
+
+.item[data-read="false"] {
+  border-color: var(--line-strong);
+  box-shadow: var(--shadow-sm);
+}
+
+.head {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.dot {
+  flex: none;
+  width: 10px;
+  height: 10px;
+  margin-top: 7px;
+  border-radius: 50%;
+  background: var(--ember);
+  transition: opacity var(--dur-fast) ease;
+}
+
+.dot[data-read="true"] {
+  opacity: 0;
+}
+
+.who {
+  flex: 1;
+  min-width: 0;
+}
+
+.name {
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  font-weight: 700;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.item[data-read="true"] .name {
+  font-weight: 600;
+  color: var(--ink-2);
+}
+
+.contact {
+  font-size: var(--text-sm);
+  color: var(--muted);
+  overflow-wrap: anywhere;
+}
+
+.time {
+  flex: none;
+  padding-top: 3px;
+  font-size: var(--text-xs);
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.prop {
+  margin-top: 0.6rem;
+  font-size: var(--text-sm);
+  color: var(--muted);
+}
+
+.prop a {
+  font-weight: 600;
+  color: var(--forest);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.message {
+  margin-top: 0.6rem;
+  font-size: var(--text-base);
+  line-height: 1.6;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 1rem;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 0 14px;
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  background: transparent;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  white-space: nowrap;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    transform var(--dur-press) var(--ease-out),
+    background-color var(--dur-fast) ease,
+    border-color var(--dur-fast) ease;
+}
+
+.btn:active {
+  transform: scale(0.97);
+}
+
+.primary {
+  background: var(--forest);
+  border-color: var(--forest);
+  color: var(--paper);
+}
+
+.danger {
+  color: var(--danger);
+  margin-left: auto;
+}
+
+@media (max-width: 559px) {
+  .hideSm {
+    display: none;
+  }
+  .danger {
+    padding: 0 12px;
+  }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .btn:hover {
+    border-color: var(--ink);
+  }
+  .primary:hover {
+    background: var(--forest-2);
+    border-color: var(--forest-2);
+  }
+  .danger:hover {
+    border-color: var(--danger);
+    background: #f4e3df;
+  }
+}
+
+.none,
+.empty {
+  padding: 2.5rem 1rem;
+  border: 1px dashed var(--line-strong);
+  border-radius: var(--radius-lg);
+  text-align: center;
+  color: var(--muted);
+}
+
+.empty h2 {
+  margin-bottom: 0.4rem;
+  font-size: 1.75rem;
+  color: var(--ink);
+}
+
+.empty p {
+  font-size: var(--text-sm);
+}
+
+@keyframes rowIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .item {
+    animation-name: fadeOnly;
+  }
+  @keyframes fadeOnly {
+    from {
+      opacity: 0;
+    }
+  }
+}

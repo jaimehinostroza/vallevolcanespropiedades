@@ -1,0 +1,167 @@
+/* Primitivas compartidas del panel: campos, secciones, controles. */
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.labelRow {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.label {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.optional {
+  font-weight: 500;
+  color: var(--muted);
+}
+
+.hint {
+  font-size: var(--text-xs);
+  line-height: 1.45;
+  color: var(--muted);
+}
+
+.error {
+  font-size: var(--text-sm);
+  font-weight: 500;
+  line-height: 1.4;
+  color: var(--danger);
+}
+
+/* font-size 16px: evita el zoom automático de iOS al enfocar */
+.input,
+.select,
+.textarea {
+  width: 100%;
+  min-height: 48px;
+  padding: 0.65rem 0.85rem;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--ink);
+  font-size: 1rem;
+  line-height: 1.4;
+  appearance: none;
+  transition:
+    border-color var(--dur-fast) ease,
+    box-shadow var(--dur-fast) ease;
+}
+
+.textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+.select {
+  padding-right: 2.4rem;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5l5 5 5-5' fill='none' stroke='%236f7772' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.9rem center;
+}
+
+.input::placeholder,
+.textarea::placeholder {
+  color: var(--muted);
+  opacity: 0.8;
+}
+
+.input:focus-visible,
+.select:focus-visible,
+.textarea:focus-visible {
+  outline: none;
+  border-color: var(--forest);
+  box-shadow: 0 0 0 3px rgb(46 74 62 / 0.18);
+}
+
+.field[data-invalid="true"] .input,
+.field[data-invalid="true"] .select,
+.field[data-invalid="true"] .textarea {
+  border-color: var(--danger);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .input:hover,
+  .select:hover,
+  .textarea:hover {
+    border-color: var(--ink-2);
+  }
+}
+
+/* ───── Secciones de formulario ───── */
+
+.section {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  padding: clamp(1rem, 0.6rem + 1.6vw, 1.75rem);
+}
+
+.sectionHead {
+  margin-bottom: 1.1rem;
+}
+
+.sectionTitle {
+  font-family: var(--font-body);
+  font-size: var(--text-lg);
+  font-weight: 700;
+  letter-spacing: -0.005em;
+  line-height: 1.25;
+}
+
+.sectionDesc {
+  margin-top: 4px;
+  font-size: var(--text-sm);
+  color: var(--muted);
+}
+
+.sectionBody {
+  display: grid;
+  gap: 1.1rem;
+}
+
+.message {
+  padding: 0.75rem 0.9rem;
+  border-radius: var(--radius);
+  background: #f4e3df;
+  color: var(--danger);
+  font-size: var(--text-sm);
+  font-weight: 500;
+}
+
+.message[data-ok="true"] {
+  background: #e3ede6;
+  color: var(--ok);
+}
+
+/* ───── Spinner (rotación constante: linear) ───── */
+
+.spinner {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  animation: spin 600ms linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spinner {
+    animation-duration: 1.4s;
+  }
+}
