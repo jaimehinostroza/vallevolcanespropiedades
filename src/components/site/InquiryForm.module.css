@@ -1,0 +1,121 @@
+.form {
+  display: grid;
+  gap: 1rem;
+}
+
+.heading {
+  font-size: var(--display-sm);
+}
+.intro {
+  color: var(--ink-2);
+  margin-top: -0.4rem;
+}
+
+.field {
+  display: grid;
+  gap: 0.4rem;
+}
+.field label {
+  font-size: var(--text-sm);
+  font-weight: 600;
+}
+.field input,
+.field textarea {
+  width: 100%;
+  min-height: 48px;
+  padding: 0.7rem 0.9rem;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius);
+  background: var(--surface);
+  font-size: 1rem; /* 16 px: evita el zoom automático de iOS */
+  transition:
+    border-color var(--dur-fast) ease,
+    box-shadow var(--dur-fast) ease;
+}
+.field textarea {
+  resize: vertical;
+  min-height: 112px;
+  line-height: 1.5;
+}
+.field input:focus-visible,
+.field textarea:focus-visible {
+  outline: 2px solid var(--ember);
+  outline-offset: 1px;
+  border-color: var(--ink);
+}
+.field [aria-invalid="true"] {
+  border-color: var(--danger);
+}
+
+.err {
+  font-size: var(--text-sm);
+  color: var(--danger);
+}
+.errBox {
+  padding: 0.8rem 1rem;
+  border-radius: var(--radius);
+  background: #f6e4e0;
+  color: #6f241a;
+  font-size: var(--text-sm);
+}
+
+.fine {
+  font-size: var(--text-xs);
+  color: var(--muted);
+}
+
+/* Campo trampa fuera de pantalla */
+.trap {
+  position: absolute;
+  left: -10000px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+.success {
+  display: grid;
+  gap: 0.5rem;
+  justify-items: start;
+  padding-block: 0.5rem;
+  animation: pop 320ms var(--ease-out);
+}
+.tick {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--forest);
+  color: var(--paper);
+}
+.successTitle {
+  font-family: var(--font-display);
+  font-size: var(--display-sm);
+  line-height: 1.1;
+}
+
+@keyframes pop {
+  from {
+    opacity: 0;
+    transform: scale(0.97) translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .success {
+    animation-name: fadeOnly;
+  }
+  @keyframes fadeOnly {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+}

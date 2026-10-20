@@ -1,0 +1,88 @@
+.footer {
+  background: var(--night);
+  color: var(--on-night);
+  padding-block: clamp(3rem, 2rem + 4vw, 5.5rem) 1.5rem;
+}
+
+.grid {
+  display: grid;
+  gap: 2.5rem;
+  padding-bottom: 2.5rem;
+}
+
+.brand {
+  font-family: var(--font-display);
+  font-size: var(--display-sm);
+  line-height: 1.05;
+}
+
+.tagline {
+  margin-top: 0.75rem;
+  max-width: 34ch;
+  color: var(--on-night-muted);
+}
+
+.heading {
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--on-night-muted);
+  margin-bottom: 0.75rem;
+}
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+}
+
+.list a,
+.plain {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-height: 44px;
+  font-size: var(--text-sm);
+  color: var(--on-night);
+  overflow-wrap: anywhere;
+}
+.plain {
+  color: var(--on-night-muted);
+}
+.list svg {
+  flex: none;
+  color: var(--on-night-muted);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .list a:hover {
+    text-decoration: underline;
+    text-underline-offset: 4px;
+    text-decoration-thickness: 1px;
+  }
+}
+
+.legal {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--line-night);
+  font-size: var(--text-xs);
+  color: var(--on-night-muted);
+}
+
+/* La barra de contacto fija de las fichas no debe tapar el pie en móvil */
+@media (min-width: 720px) {
+  .grid {
+    grid-template-columns: 1.4fr 1fr 1.3fr;
+    gap: 3rem;
+  }
+  .legal {
+    flex-direction: row;
+    justify-content: space-between;
+  }
+}

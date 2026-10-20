@@ -1,0 +1,172 @@
+.root {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: grid;
+  grid-template-rows: auto 1fr;
+  color: #fff;
+  /* Entrada: opacity + scale(0.97), ease-out ~220 ms. Nada nace de scale(0). */
+  animation: lbIn 220ms var(--ease-out) both;
+}
+.root[data-closing="true"] {
+  animation: lbOut 150ms var(--ease-out) both;
+  pointer-events: none;
+}
+
+@keyframes lbIn {
+  from {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes lbOut {
+  from {
+    opacity: 1;
+    transform: none;
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.985);
+  }
+}
+
+.backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgb(10 13 12 / 0.96);
+}
+
+.top {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: max(0.5rem, env(safe-area-inset-top)) max(0.75rem, env(safe-area-inset-right)) 0.5rem
+    max(1rem, env(safe-area-inset-left));
+}
+
+.counter {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: rgb(255 255 255 / 0.85);
+}
+
+.iconBtn {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border: 0;
+  border-radius: 50%;
+  background: rgb(255 255 255 / 0.1);
+  color: #fff;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    transform var(--dur-press) var(--ease-out),
+    background-color var(--dur-fast) ease;
+}
+.iconBtn:active {
+  transform: scale(0.94);
+}
+.iconBtn:focus-visible {
+  outline-color: #fff;
+}
+@media (hover: hover) and (pointer: fine) {
+  .iconBtn:hover {
+    background: rgb(255 255 255 / 0.2);
+  }
+}
+
+.stage {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  min-height: 0;
+  padding: 0 clamp(0rem, 6vw, 5.5rem) max(1rem, env(safe-area-inset-bottom));
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.figure {
+  max-width: 100%;
+  max-height: 100%;
+  display: grid;
+  place-items: center;
+  will-change: transform;
+}
+
+/* La foto conserva su proporción y cabe entera en la pantalla */
+.figure .photo {
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  max-height: calc(100dvh - 7rem);
+  background: transparent !important;
+  background-image: none !important;
+}
+.figure .photo > img {
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  max-height: calc(100dvh - 7rem);
+  object-fit: contain;
+  -webkit-user-drag: none;
+}
+
+.prev,
+.next {
+  position: absolute;
+  z-index: 2;
+  top: 50%;
+  margin-top: -24px;
+}
+.prev {
+  left: max(0.75rem, env(safe-area-inset-left));
+}
+.next {
+  right: max(0.75rem, env(safe-area-inset-right));
+}
+
+/* En táctil se navega deslizando; las flechas quedan para quien las necesite pero más discretas */
+@media (pointer: coarse) {
+  .prev,
+  .next {
+    top: auto;
+    bottom: max(1rem, env(safe-area-inset-bottom));
+    margin-top: 0;
+    background: rgb(255 255 255 / 0.14);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .root {
+    animation-name: lbFadeIn;
+  }
+  .root[data-closing="true"] {
+    animation-name: lbFadeOut;
+  }
+  @keyframes lbFadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  @keyframes lbFadeOut {
+    from {
+      opacity: 1;
+    }
+    to {
+      opacity: 0;
+    }
+  }
+}

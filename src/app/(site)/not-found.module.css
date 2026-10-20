@@ -1,0 +1,24 @@
+.wrap {
+  display: grid;
+  justify-items: start;
+  gap: 1.25rem;
+  padding-top: calc(var(--header-h) + clamp(3rem, 2rem + 6vw, 8rem));
+  padding-bottom: var(--section);
+  min-height: 70svh;
+  align-content: start;
+}
+.title {
+  font-size: var(--display-lg);
+  max-width: 14ch;
+}
+.text {
+  max-width: 48ch;
+  font-size: var(--text-lg);
+  color: var(--ink-2);
+}
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
