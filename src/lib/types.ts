@@ -17,6 +17,8 @@ export interface PropertyImage {
   id: string;
   property_id: string;
   storage_prefix: string;
+  /** Solo fotos de ejemplo: URL base en images.unsplash.com (sin archivos en Storage) */
+  source_url?: string | null;
   ext: "webp" | "jpg" | "avif";
   width: number;
   height: number;

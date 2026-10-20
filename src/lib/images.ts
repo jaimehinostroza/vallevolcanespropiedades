@@ -16,7 +16,16 @@ export const IMAGE_BUCKET = "property-images";
 
 const STORAGE_BASE = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/${IMAGE_BUCKET}`;
 
-export function imageUrl(img: Pick<PropertyImage, "storage_prefix" | "ext">, size: VariantName = "md") {
+type ImageRef = Pick<PropertyImage, "storage_prefix" | "ext" | "width" | "height"> &
+  Partial<Pick<PropertyImage, "source_url">>;
+
+export function imageUrl(img: ImageRef, size: VariantName = "md") {
+  if (img.source_url) {
+    // Foto de ejemplo servida por la CDN de Unsplash: la misma variante, redimensionada y en WebP.
+    const v = IMAGE_VARIANTS.find((x) => x.name === size)!;
+    const w = variantWidth(img, size);
+    return `${img.source_url}?w=${w}&fm=webp&q=${Math.round(v.quality * 90)}&fit=max`;
+  }
   return `${STORAGE_BASE}/${img.storage_prefix}/${size}.${img.ext}`;
 }
 
@@ -28,7 +37,7 @@ export function variantWidth(img: Pick<PropertyImage, "width" | "height">, size:
   return Math.round(img.width * scale);
 }
 
-export function imageSrcSet(img: Pick<PropertyImage, "storage_prefix" | "ext" | "width" | "height">) {
+export function imageSrcSet(img: ImageRef) {
   return IMAGE_VARIANTS.map((v) => `${imageUrl(img, v.name)} ${variantWidth(img, v.name)}w`).join(", ");
 }
 
