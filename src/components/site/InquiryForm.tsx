@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useId } from "react";
+import { useActionState, useEffect, useId, useRef } from "react";
 import { sendInquiry, type InquiryState } from "@/app/(site)/actions";
 import { CheckIcon } from "./icons";
 import styles from "./InquiryForm.module.css";
@@ -17,9 +17,18 @@ interface Props {
 export function InquiryForm({ propertyId, propertyTitle, heading, intro }: Props) {
   const [state, action, pending] = useActionState(sendInquiry, initial);
   const uid = useId();
+  const formRef = useRef<HTMLFormElement>(null);
   const id = (k: string) => `${uid}-${k}`;
   const errs = state.fieldErrors ?? {};
   const defaultMessage = propertyTitle ? `Hola, me interesa «${propertyTitle}». ` : "";
+
+  const hasFieldErrors = state.status === "error" && Object.keys(errs).length > 0;
+
+  // Con errores por campo: foco al primer campo inválido
+  useEffect(() => {
+    if (!hasFieldErrors) return;
+    formRef.current?.querySelector<HTMLElement>('[aria-invalid="true"]')?.focus();
+  }, [state, hasFieldErrors]);
 
   if (state.status === "success") {
     return (
@@ -34,7 +43,7 @@ export function InquiryForm({ propertyId, propertyTitle, heading, intro }: Props
   }
 
   return (
-    <form action={action} className={styles.form} noValidate>
+    <form ref={formRef} action={action} className={styles.form} noValidate>
       {heading && <h3 className={styles.heading}>{heading}</h3>}
       {intro && <p className={styles.intro}>{intro}</p>}
       {propertyId && <input type="hidden" name="property_id" value={propertyId} />}
@@ -102,9 +111,9 @@ export function InquiryForm({ propertyId, propertyTitle, heading, intro }: Props
       </div>
 
       <div aria-live="polite">
-        {state.status === "error" && state.message && !state.fieldErrors && (
-          <p className={styles.errBox} role="alert">
-            {state.message}
+        {state.status === "error" && (hasFieldErrors || state.message) && (
+          <p className={styles.errBox}>
+            {hasFieldErrors ? "Revisa los campos marcados para poder enviar tu consulta." : state.message}
           </p>
         )}
       </div>

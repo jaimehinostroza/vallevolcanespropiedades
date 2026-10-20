@@ -158,7 +158,7 @@
   }
 
   .photo {
-    transition: transform 600ms var(--ease-out);
+    transition: transform 300ms var(--ease-out);
   }
 }
 

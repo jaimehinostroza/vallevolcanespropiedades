@@ -13,7 +13,7 @@
   box-shadow: var(--shadow);
   -webkit-tap-highlight-color: transparent;
   opacity: 0;
-  animation: in 420ms var(--ease-out) 900ms forwards;
+  animation: in 240ms var(--ease-out) 600ms forwards;
   transition:
     transform var(--dur-press) var(--ease-out),
     background-color var(--dur-fast) ease;

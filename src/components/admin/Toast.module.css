@@ -58,6 +58,7 @@
 }
 
 .close {
+  position: relative;
   flex: none;
   display: grid;
   place-items: center;
@@ -69,6 +70,12 @@
   color: var(--on-night-muted);
   -webkit-tap-highlight-color: transparent;
   transition: transform var(--dur-press) var(--ease-out);
+}
+
+.close::before {
+  content: "";
+  position: absolute;
+  inset: -4px; /* área tocable de 44 px */
 }
 
 .close:active {
