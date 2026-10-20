@@ -57,7 +57,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
           alt: cover.alt ?? p.title,
         },
       ]
-    : undefined;
+    : // Sin fotos: imagen de marca para que el enlace compartido no salga vacío
+      [{ url: "/opengraph-image", width: 1200, height: 630, alt: "Valle Volcanes Propiedades · Puerto Varas" }];
 
   return {
     title: p.title,
